@@ -16,12 +16,14 @@ public class Main {
     static int resultCap = 100;
 
     public static void main(String[] args) {
+        String genreTag = getGenreTag();
+        getResultCap();
         int scrollStart = 0;
         System.out.print("TITLE | ORIGINAL PRICE | DISCOUNTED PRICE | DISCOUNT PERCENT\n");
         while (searchResults < resultCap) {
             try {
                 // Points to infinite scrolling list of Steam Global Top Sellers in JSON format
-                URL steamTopSellers = new URI("https://store.steampowered.com/search/results/?query&start=" + scrollStart + "&count=50&dynamic_data=&sort_by=_ASC&supportedlang=english&snr=1_7_7_globaltopsellers_7&filter=globaltopsellers&infinite=1").toURL();
+                URL steamTopSellers = new URI("https://store.steampowered.com/search/results/?query&start=" + scrollStart + "&count=50&dynamic_data=&sort_by=_ASC&supportedlang=english&snr=1_7_7_globaltopsellers_7&filter=globaltopsellers&infinite=1" + genreTag).toURL();
                 String HTMLContent = getPageHTMLContent(steamTopSellers);
                 String HTMLGameListings = getListingsHTML(HTMLContent);
                 extractAndProcessSales(HTMLGameListings);
@@ -64,7 +66,7 @@ public class Main {
             if (game.stream().anyMatch(x -> x.hasClass("discount_block search_discount_block"))) {
                 String title = game.children().select("[class=title]").text();
                 String price = game.children().select("[class=discount_final_price]").text().replaceAll("\\s", "");
-                String ogPrice = "";
+                String ogPrice;
 
                 if (game.stream().anyMatch(x -> x.hasClass("discount_original_price"))) {
                     ogPrice = game.children().select("[class=discount_original_price]").text().replaceAll("\\s", "");
@@ -87,5 +89,54 @@ public class Main {
         String HTMLContent = getPageHTMLContent(gamePage);
         Document doc = Jsoup.parse(HTMLContent);
         return doc.select("[class=normal_price]").first().text().replaceAll("\\s", "");
+    }
+
+    public static String getGenreTag() {
+        boolean inputActive = true;
+        String genreTag = "";
+        Scanner sc = new Scanner(System.in);
+
+        while (inputActive) {
+            System.out.println("Choose game genre, otherwise type 'All'");
+            String genre = sc.nextLine().toUpperCase().trim();
+
+            if (genre.equals("ALL")) {
+                return "";
+            }
+
+            try {
+                String genreTags = "https://store.steampowered.com/tag/browse";
+                Document doc = Jsoup.connect(genreTags).get();
+                Elements tags = doc.select("[class=tag_browse_tag]");
+                if (tags.stream().anyMatch(x -> x.text().toUpperCase().equals(genre))) {
+                    inputActive = false;
+                    genreTag = "&tags=" + tags.stream().filter(x -> x.text().toUpperCase().equals(genre)).findFirst().get().attr("data-tagid");
+                } else {
+                    System.out.println("No such genre found, try again");
+                }
+            } catch (IOException e) {
+                throw new RuntimeException();
+            }
+        }
+
+        return genreTag;
+    }
+
+    public static void getResultCap() {
+        Scanner sc = new Scanner(System.in);
+        boolean inputActive = true;
+
+        while (inputActive) {
+            System.out.println("Specify the number of results (ResultCap)");
+            int cap = sc.nextInt();
+            if (cap < 0) {
+                System.out.println("The number of results must be a positive integer value");
+            }
+            else {
+                sc.close();
+                inputActive = false;
+                resultCap = cap;
+            }
+        }
     }
 }
