@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #333333;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
+   <top>
+      <StackPane BorderPane.alignment="CENTER_LEFT">
+         <children>
+            <ImageView blendMode="ADD" fitWidth="500.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER_LEFT">
+               <image>
+                  <Image url="@GraphicalAssets/SteamScraperLogo.png" />
+               </image>
+               <StackPane.margin>
+                  <Insets left="-50.0" />
+               </StackPane.margin>
+            </ImageView>
+         </children>
+      </StackPane>
+   </top>
+   <center>
+      <StackPane alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="200.0" prefWidth="500.0" style="-fx-background-radius: 0; -fx-border-radius: 0;" BorderPane.alignment="CENTER">
+         <children>
+            <Text fill="WHITE" lineSpacing="3.0" stroke="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Welcome to Sale Scraper!&#10;&#10;This app is meant to help you get some good games on sale from Steam.&#10;To start, you'll need to specify which game genre you're interested in.&#10;&#10;Let's start!">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Text>
+            <StackPane alignment="BOTTOM_RIGHT">
+               <children>
+                  <Button alignment="CENTER" mnemonicParsing="false" onAction="#switchToInputScene" prefHeight="25.0" prefWidth="75.0" style="-fx-background-color: red; -fx-background-radius: 0;" text="Next" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></Button>
+               </children>
+            </StackPane>
+         </children>
+         <BorderPane.margin>
+            <Insets bottom="25.0" />
+         </BorderPane.margin>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+      </StackPane>
+   </center>
+</BorderPane>
