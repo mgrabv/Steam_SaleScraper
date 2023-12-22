@@ -5,7 +5,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.Objects;
 
 public class Main extends Application {
     public static void main(String[] args) {
@@ -14,19 +13,11 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("WelcomeScene.fxml")));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("WelcomeScene.fxml"));
+        Parent root = loader.load();
+        ((MainController)loader.getController()).setMinWindowSize(stage);
         Scene welcomeScene = new Scene(root);
         stage.setScene(welcomeScene);
-        stage.widthProperty().addListener((observable) -> {
-            if (stage.getWidth() < 600) {
-                stage.setWidth(600);
-            }
-        });
-        stage.heightProperty().addListener((observable) -> {
-            if (stage.getHeight() < 400) {
-                stage.setHeight(400);
-            }
-        });
         stage.show();
     }
 }
