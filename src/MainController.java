@@ -1,3 +1,5 @@
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -5,14 +7,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 
+import javax.swing.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +23,7 @@ public class MainController {
     private Scene scene;
     private Parent root;
     public static MainController controller;
-    private List<String> scrapedGames = new ArrayList<>();
+    private List<Game> scrapedGames = new ArrayList<>();
 
     @FXML
     Text genreError;
@@ -33,6 +35,23 @@ public class MainController {
     ProgressBar scrapeBar;
     @FXML
     Label barPercent;
+
+    @FXML
+    TableView<Game> gameTable;
+    @FXML
+    TableColumn<Game, String> coverColumn;
+    @FXML
+    TableColumn<Game, String> titleColumn;
+    @FXML
+    TableColumn<Game, String> ogPriceColumn;
+    @FXML
+    TableColumn<Game, String> priceColumn;
+    @FXML
+    TableColumn<Game, String> discountColumn;
+    @FXML
+    ImageView gameCover;
+    @FXML
+    Label gameTitle;
 
 
     public void setMinWindowSize(Stage stage) {
@@ -59,7 +78,18 @@ public class MainController {
         }
     }
 
-    public void scrape() {
+    public void switchToScrapedScene(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("ScrapedScene.fxml"));
+            root = loader.load();
+            scene = ((Node)event.getSource()).getScene();
+            scene.setRoot(root);
+        } catch (IOException e) {
+            throw new RuntimeException();
+        }
+    }
+
+    public void scrape(ActionEvent event) {
         String genre = genreField.getText().trim().toUpperCase();
         if (!ScraperUtils.genreExists(genre)) {
             genreError.setVisible(true);
@@ -71,7 +101,10 @@ public class MainController {
             ScraperUtils.setGenre(genre);
             scrapedGames = ScraperUtils.scrape();
             Task<Void> scrapingTask = ScraperUtils.scrapingTask;
-            scrapingTask.setOnSucceeded(workerStateEvent -> System.out.println("Finished"));
+            scrapingTask.setOnSucceeded(workerStateEvent -> {
+                switchToScrapedScene(event);
+                loadResults();
+            });
         }
     }
 
@@ -85,5 +118,8 @@ public class MainController {
         barPercent.setText("0%");
         progressPane.setVisible(false);
         inputPane.setVisible(true);
+    }
+
+    public void loadResults() {
     }
 }

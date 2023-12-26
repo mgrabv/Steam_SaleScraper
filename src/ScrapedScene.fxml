@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1200.0" style="-fx-background-color: #333333;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
+   <center>
+      <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="600.0" prefWidth="1200.0" BorderPane.alignment="CENTER">
+         <children>
+            <StackPane>
+               <children>
+                  <VBox alignment="CENTER_LEFT">
+                     <children>
+                        <StackPane alignment="TOP_CENTER">
+                           <children>
+                              <ImageView blendMode="ADD" fitHeight="80.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@GraphicalAssets/DetailsLogo.png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                        </StackPane>
+                        <StackPane>
+                           <children>
+                              <VBox alignment="CENTER" prefHeight="900.0" prefWidth="500.0">
+                                 <children>
+                                    <ImageView fx:id="gameCover" fitHeight="100.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true" />
+                                    <Label fx:id="gameTitle" alignment="CENTER" focusTraversable="false" maxWidth="-Infinity" prefWidth="400.0" textAlignment="CENTER" textFill="WHITE">
+                                       <font>
+                                          <Font size="20.0" />
+                                       </font>
+                                    </Label>
+                                 </children></VBox>
+                           </children>
+                        </StackPane>
+                     </children>
+                  </VBox>
+               </children>
+            </StackPane>
+            <Separator focusTraversable="false" orientation="VERTICAL" style="-fx-background-color: red; -fx-shadow-highlight-color: null; -fx-border-color: red; -fx-background-radius: 10; -fx-border-radius: 10; -fx-min-width: 5;">
+               <HBox.margin>
+                  <Insets left="10.0" right="10.0" />
+               </HBox.margin></Separator>
+            <StackPane prefWidth="700.0">
+               <children>
+                  <VBox alignment="CENTER">
+                     <children>
+                        <StackPane alignment="TOP_CENTER">
+                           <children>
+                              <ImageView blendMode="ADD" fitHeight="80.0" fitWidth="220.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@GraphicalAssets/GamesLogo.png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                        </StackPane>
+                        <StackPane prefHeight="500.0">
+                           <children>
+                              <TableView fx:id="gameTable" style="-fx-background-color: transparent; -fx-text-fill: white;">
+                                <columns>
+                                  <TableColumn fx:id="coverColumn" editable="false" prefWidth="220.80004578828812" style="-fx-background-color: ; -fx-border-style: solid; -fx-border-width: 2; -fx-text-fill: white;" text="Amogus" />
+                                    <TableColumn fx:id="titleColumn" editable="false" prefWidth="303.19996643066406" style="-fx-background-color: #333333; -fx-border-style: solid; -fx-border-width: 2;" />
+                                    <TableColumn fx:id="ogPriceColumn" editable="false" prefWidth="55.199951171875" style="-fx-background-color: #333333; -fx-border-style: solid; -fx-border-width: 2;" />
+                                    <TableColumn fx:id="priceColumn" editable="false" prefWidth="54.39990234375" style="-fx-background-color: #333333; -fx-border-style: solid; -fx-border-width: 2;" />
+                                    <TableColumn fx:id="discountColumn" editable="false" prefWidth="51.199951171875" style="-fx-background-color: #333333; -fx-border-style: solid; -fx-border-width: 2;" />
+                                </columns>
+                                 <columnResizePolicy>
+                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                 </columnResizePolicy>
+                              </TableView>
+                           </children>
+                        </StackPane>
+                        <StackPane prefHeight="40.0" />
+                     </children>
+                  </VBox>
+               </children>
+            </StackPane>
+         </children>
+      </HBox>
+   </center>
+</BorderPane>

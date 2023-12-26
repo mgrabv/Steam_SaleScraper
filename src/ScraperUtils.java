@@ -20,9 +20,9 @@ public class ScraperUtils {
     public static Task<Void> scrapingTask;
 
 
-    public static List<String> scrape() {
+    public static List<Game> scrape() {
 
-        List<String> scrapedGames = new ArrayList<>();
+        List<Game> scrapedGames = new ArrayList<>();
         String genreTag = getGenreTag(genre);
 
         try {
@@ -47,7 +47,7 @@ public class ScraperUtils {
         scrollStart = 0;
     }
 
-    public static List<String> scrapeMore() {
+    public static List<Game> scrapeMore() {
         scrollStart += 50;
         return scrape();
     }
@@ -74,8 +74,8 @@ public class ScraperUtils {
         return JSONContent.get("results_html").getAsString();
     }
 
-    private static List<String> extractAndProcessSales(String HTMLGameListings) {
-        List<String> scrapedGames = new ArrayList<>();
+    private static List<Game> extractAndProcessSales(String HTMLGameListings) {
+        List<Game> scrapedGames = new ArrayList<>();
 
         scrapingTask = new Task<>() {
             @Override
@@ -84,10 +84,9 @@ public class ScraperUtils {
                 Document doc = Jsoup.parse(HTMLGameListings);
                 Elements games = doc.select("a");
 
-                for (
-                        Element game : games) {
+                for (Element game : games) {
                     String title = game.children().select("[class=title]").text();
-                    String price = game.children().select("[class=discount_final_price]").text().replaceAll("\\s", "");
+                    String price;
                     String ogPrice;
                     String discountPercent;
                     String gamePage;
@@ -95,6 +94,17 @@ public class ScraperUtils {
 
                     gamePage = game.attr("abs:href");
                     cover = game.children().select("img").attr("abs:src");
+
+                    if (game.stream().anyMatch(x -> x.hasClass("discount_final_price"))) {
+                        price = game.children().select("[class=discount_final_price]").text().replaceAll("\\s", "");
+                    } else {
+
+                        try {
+                            price = getDiscountPrice(new URI(gamePage).toURL());
+                        } catch (URISyntaxException | MalformedURLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
 
                     if (game.stream().anyMatch(x -> x.hasClass("discount_original_price"))) {
                         ogPrice = game.children().select("[class=discount_original_price]").text().replaceAll("\\s", "");
@@ -113,7 +123,8 @@ public class ScraperUtils {
                         discountPercent = "-" + (int) Math.round((Double.parseDouble(ogPrice.substring(0, ogPrice.length() - 2).replaceAll(",", ".")) - Double.parseDouble(price.substring(0, price.length() - 2).replaceAll(",", "."))) / Double.parseDouble(ogPrice.substring(0, ogPrice.length() - 2).replaceAll(",", ".")) * 100) + "%";
                     }
 
-                    scrapedGames.add(title + "|" + ogPrice + "|" + price + "|" + discountPercent + "|" + gamePage + "|" + cover);
+                    scrapedGames.add(new Game(title, ogPrice, price, discountPercent, gamePage, cover));
+                    //scrapedGames.add(title + "|" + ogPrice + "|" + price + "|" + discountPercent + "|" + gamePage + "|" + cover);
                     //System.out.println(title + "|" + ogPrice + "|" + price + "|" + discountPercent + "|" + gamePage + "|" + cover);
                     updateProgress(scrapedGames.size(), 50);
                     updateMessage(scrapedGames.size() * 100 / 50 + "%");
@@ -147,6 +158,13 @@ public class ScraperUtils {
             return "&tags=" + genreTags.stream().filter(x -> x.text().toUpperCase().equals(genre)).findFirst().get().attr("data-tagid");
         }
 
+    }
+
+    private static String getDiscountPrice(URL gamePage) {
+        String HTMLContent = getPageHTMLContent(gamePage);
+        Document doc = Jsoup.parse(HTMLContent);
+
+        return doc.select("[class=discount_final_price]").first().text().replaceAll("\\s", "");
     }
 
     private static String getOriginalPrice(URL gamePage) {
