@@ -17,6 +17,7 @@ import java.util.Scanner;
 public class ScraperUtils {
     private static String genre;
     private static int scrollStart = 0;
+    private static boolean scrapingMore = false;
     public static Task<Void> scrapingTask;
 
 
@@ -49,6 +50,7 @@ public class ScraperUtils {
 
     public static List<Game> scrapeMore() {
         scrollStart += 50;
+        scrapingMore = true;
         return scrape();
     }
 
@@ -91,6 +93,9 @@ public class ScraperUtils {
                     String discountPercent;
                     String gamePage;
                     String cover;
+                    String description = "No description";
+                    String releaseDate;
+                    String reviews = "No reviews";
 
                     gamePage = game.attr("abs:href");
                     cover = game.children().select("img").attr("abs:src");
@@ -123,9 +128,22 @@ public class ScraperUtils {
                         discountPercent = "-" + (int) Math.round((Double.parseDouble(ogPrice.substring(0, ogPrice.length() - 2).replaceAll(",", ".")) - Double.parseDouble(price.substring(0, price.length() - 2).replaceAll(",", "."))) / Double.parseDouble(ogPrice.substring(0, ogPrice.length() - 2).replaceAll(",", ".")) * 100) + "%";
                     }
 
-                    scrapedGames.add(new Game(title, ogPrice, price, discountPercent, gamePage, cover));
+                    try {
+                        String HTMLContent = getPageHTMLContent(new URI(gamePage).toURL());
+                        Document gameDoc = Jsoup.parse(HTMLContent);
+                        Element gameDetails = gameDoc.select("[class=glance_ctn]").first();
+
+                        description = gameDetails.children().select("[class=game_description_snippet]").text();
+                        releaseDate = gameDetails.select("[class=date]").text();
+                        reviews = "Overall rating: " + gameDetails.stream().filter(x -> x.hasClass("game_review_summary")).toList().get(1).text() +
+                                    "\nRated by " + gameDetails.stream().filter(x -> x.hasClass("responsive_hidden")).toList().get(1).text() + " players";
+                    } catch (MalformedURLException | URISyntaxException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    scrapedGames.add(new Game(title, ogPrice, price, discountPercent, gamePage, cover, description, releaseDate, reviews));
                     //scrapedGames.add(title + "|" + ogPrice + "|" + price + "|" + discountPercent + "|" + gamePage + "|" + cover);
-                    //System.out.println(title + "|" + ogPrice + "|" + price + "|" + discountPercent + "|" + gamePage + "|" + cover);
+                    System.out.println(title + "|" + ogPrice + "|" + price + "|" + discountPercent + "|" + gamePage + "|" + cover);
                     updateProgress(scrapedGames.size(), 50);
                     updateMessage(scrapedGames.size() * 100 / 50 + "%");
                 }
@@ -133,10 +151,17 @@ public class ScraperUtils {
             }
         };
 
-        MainController.controller.scrapeBar.progressProperty().bind(scrapingTask.progressProperty());
-        MainController.controller.barPercent.textProperty().bind(scrapingTask.messageProperty());
+        if (scrapingMore) {
+            ScrapedSceneController.controller.moreBar.progressProperty().bind(scrapingTask.progressProperty());
+            ScrapedSceneController.controller.moreLabel.textProperty().bind(scrapingTask.messageProperty());
+        } else {
+            MainController.controller.scrapeBar.progressProperty().bind(scrapingTask.progressProperty());
+            MainController.controller.barPercent.textProperty().bind(scrapingTask.messageProperty());
+        }
+
         Thread thread = new Thread(scrapingTask);
         thread.start();
+        scrapingMore = false;
 
         return scrapedGames;
     }

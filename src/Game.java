@@ -1,67 +1,70 @@
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
 public class Game {
 
     private String title;
     private String ogPrice;
     private String price;
     private String discountPercent;
-    private String gamePage;
-    private String cover;
+    private String page;
+    private ImageView cover;
+    private String description;
+    private String releaseDate;
+    private String reviews;
 
 
-    public Game(String title, String ogPrice, String price, String discountPercent, String gamePage, String cover) {
+
+    public Game(String title, String ogPrice, String price, String discountPercent, String gamePage, String cover, String description, String releaseDate, String reviews) {
         this.title = title;
         this.ogPrice = ogPrice;
         this.price = price;
         this.discountPercent = discountPercent;
-        this.gamePage = gamePage;
-        this.cover = cover;
+        this.page = gamePage;
+
+        this.cover = new ImageView();
+        this.cover.setImage(new Image(cover));
+        this.cover.setPreserveRatio(true);
+        this.cover.setFitWidth(200);
+
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.reviews = reviews;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public String getOgPrice() {
         return ogPrice;
-    }
-
-    public void setOgPrice(String ogPrice) {
-        this.ogPrice = ogPrice;
     }
 
     public String getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
-        this.price = price;
-    }
-
     public String getDiscountPercent() {
         return discountPercent;
     }
 
-    public void setDiscountPercent(String discountPercent) {
-        this.discountPercent = discountPercent;
+    public String getPage() {
+        return page;
     }
 
-    public String getGamePage() {
-        return gamePage;
-    }
-
-    public void setGamePage(String gamePage) {
-        this.gamePage = gamePage;
-    }
-
-    public String getCover() {
+    public ImageView getCover() {
         return cover;
     }
 
-    public void setCover(String cover) {
-        this.cover = cover;
+    public String getDescription() {
+        return description;
+    }
+
+    public String getReleaseDate() {
+        return releaseDate;
+    }
+
+    public String getReviews() {
+        return reviews;
     }
 }
