@@ -174,7 +174,7 @@
                            <children>
                               <BorderPane prefHeight="200.0" prefWidth="200.0" StackPane.alignment="CENTER">
                                  <left>
-                                    <Button mnemonicParsing="false" onAction="#switchToInputScene" prefWidth="105.0" style="-fx-background-color: red;" text="Change Genre" textFill="WHITE" BorderPane.alignment="CENTER">
+                                    <Button fx:id="changeGenre" mnemonicParsing="false" onAction="#switchToInputScene" prefWidth="105.0" style="-fx-background-color: red;" text="Change Genre" textFill="WHITE" BorderPane.alignment="CENTER">
                                        <font>
                                           <Font name="System Bold" size="13.0" />
                                        </font>

@@ -57,6 +57,8 @@ public class ScrapedSceneController {
     @FXML
     Button loadMore;
     @FXML
+    Button changeGenre;
+    @FXML
     VBox loadingMorePane;
     @FXML
     ProgressBar moreBar;
@@ -167,6 +169,7 @@ public class ScrapedSceneController {
 
     public void loadMore() {
         loadMore.setVisible(false);
+        changeGenre.setVisible(false);
         loadingMorePane.setVisible(true);
 
         List<Game> additionalGames = ScraperUtils.scrapeMore();
@@ -175,11 +178,13 @@ public class ScrapedSceneController {
             if (additionalGames.isEmpty()) {
                 loadingMorePane.setVisible(false);
                 noMoreGames.setVisible(true);
+                changeGenre.setVisible(true);
             } else {
                 setGamesForTable(additionalGames);
                 loadResults();
                 loadingMorePane.setVisible(false);
                 loadMore.setVisible(true);
+                changeGenre.setVisible(true);
             }
         });
     }
