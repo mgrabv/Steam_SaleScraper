@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -76,6 +77,10 @@ public class ScraperUtils {
         return JSONContent.get("results_html").getAsString();
     }
 
+    //This whole method is absolutely disgusting and will be optimised when I will find some time and motivation
+    //But it works :)
+    // --TODO: Re-structure so that it gets all info from listing snippet - if not only then proceed to game's page and get all info from there
+    //(now it's a total mix of things)
     private static List<Game> extractAndProcessSales(String HTMLGameListings) {
         List<Game> scrapedGames = new ArrayList<>();
 
@@ -95,13 +100,17 @@ public class ScraperUtils {
                     String cover;
                     String description = "No description";
                     String releaseDate;
-                    String reviews = "No reviews";
+                    String reviews = "No user reviews";
 
                     gamePage = game.attr("abs:href");
                     cover = game.children().select("img").attr("abs:src");
 
                     if (game.stream().anyMatch(x -> x.hasClass("discount_final_price"))) {
-                        price = game.children().select("[class=discount_final_price]").text().replaceAll("\\s", "");
+                        if (game.stream().anyMatch(x -> x.hasClass("discount_final_price free"))) {
+                            price = "Free";
+                        } else {
+                            price = game.children().select("[class=discount_final_price]").text().replaceAll("\\s", "");
+                        }
                     } else {
 
                         try {
@@ -122,10 +131,27 @@ public class ScraperUtils {
                         }
                     }
 
+                    //Additional check & getDiscountPrice repeat because my beloved Steam FrontEnd devs often mess up the listings,
+                    //and the discount ends up existing only inside the exclusive game page
+                    if (price.equals(ogPrice) && !price.equalsIgnoreCase("Free")) {
+                        try {
+                            price = getDiscountPrice(new URI(gamePage).toURL());
+                        } catch (URISyntaxException | MalformedURLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
                     if (game.stream().anyMatch(x -> x.hasClass("discount_pct"))) {
                         discountPercent = game.children().select("[class=discount_pct]").text();
                     } else {
-                        discountPercent = "-" + (int) Math.round((Double.parseDouble(ogPrice.substring(0, ogPrice.length() - 2).replaceAll(",", ".")) - Double.parseDouble(price.substring(0, price.length() - 2).replaceAll(",", "."))) / Double.parseDouble(ogPrice.substring(0, ogPrice.length() - 2).replaceAll(",", ".")) * 100) + "%";
+                        if (price.equalsIgnoreCase("free") && ogPrice.equalsIgnoreCase("free")) {
+                            discountPercent = "-0%";
+                        } else if (price.equalsIgnoreCase("free") && !ogPrice.equalsIgnoreCase("free")) {
+                            discountPercent = "-100%";
+                        }
+                        else {
+                            discountPercent = "-" + (int) Math.round((Double.parseDouble(ogPrice.substring(0, ogPrice.length() - 2).replaceAll(",", ".")) - Double.parseDouble(price.substring(0, price.length() - 2).replaceAll(",", "."))) / Double.parseDouble(ogPrice.substring(0, ogPrice.length() - 2).replaceAll(",", ".")) * 100) + "%";
+                        }
                     }
 
                     try {
@@ -133,19 +159,33 @@ public class ScraperUtils {
                         Document gameDoc = Jsoup.parse(HTMLContent);
                         Element gameDetails = gameDoc.select("[class=glance_ctn]").first();
 
-                        description = gameDetails.children().select("[class=game_description_snippet]").text();
+                        if (!gameDetails.children().select("[class=game_description_snippet]").text().isEmpty()) {
+                            description = gameDetails.children().select("[class=game_description_snippet]").text();
+                        }
+
                         releaseDate = gameDetails.select("[class=date]").text();
-                        reviews = "Overall rating: " + gameDetails.stream().filter(x -> x.hasClass("game_review_summary")).toList().get(1).text() +
-                                    "\nRated by " + gameDetails.stream().filter(x -> x.hasClass("responsive_hidden")).toList().get(1).text() + " players";
+                        int allReviewsIndex = 0;
+
+                        if (gameDetails.stream().anyMatch(x -> x.text().equalsIgnoreCase("Recent Reviews:"))) {
+                            allReviewsIndex = 1;
+                        }
+
+                        if (gameDetails.stream().anyMatch(x -> x.hasClass("game_review_summary not_enough_reviews"))) {
+                            reviews = "No overall rating\n" + gameDetails.stream().filter(x -> x.hasClass("game_review_summary")).toList().get(allReviewsIndex).text();
+                        } else if (gameDetails.stream().anyMatch(x -> x.hasClass("game_review_summary"))) {
+                            reviews = "Overall rating:\n" + gameDetails.stream().filter(x -> x.hasClass("game_review_summary")).toList().get(allReviewsIndex).text() +
+                                    "\nRated by: " + gameDetails.stream().filter(x -> x.hasClass("responsive_hidden")).toList().get(allReviewsIndex).text().
+                                    replaceAll(Arrays.toString(new String[]{"(", ")"}), "") + " user(s)";
+                        }
+
                     } catch (MalformedURLException | URISyntaxException e) {
                         throw new RuntimeException(e);
                     }
 
                     scrapedGames.add(new Game(title, ogPrice, price, discountPercent, gamePage, cover, description, releaseDate, reviews));
-                    //scrapedGames.add(title + "|" + ogPrice + "|" + price + "|" + discountPercent + "|" + gamePage + "|" + cover);
-                    System.out.println(title + "|" + ogPrice + "|" + price + "|" + discountPercent + "|" + gamePage + "|" + cover);
-                    updateProgress(scrapedGames.size(), 50);
-                    updateMessage(scrapedGames.size() * 100 / 50 + "%");
+                    //System.out.println(title + "|" + ogPrice + "|" + price + "|" + discountPercent + "|" + gamePage + "|" + cover);
+                    updateProgress(scrapedGames.size(), games.size());
+                    updateMessage(scrapedGames.size() * 100 / games.size() + "%");
                 }
                 return null;
             }
@@ -155,8 +195,8 @@ public class ScraperUtils {
             ScrapedSceneController.controller.moreBar.progressProperty().bind(scrapingTask.progressProperty());
             ScrapedSceneController.controller.moreLabel.textProperty().bind(scrapingTask.messageProperty());
         } else {
-            MainController.controller.scrapeBar.progressProperty().bind(scrapingTask.progressProperty());
-            MainController.controller.barPercent.textProperty().bind(scrapingTask.messageProperty());
+            InputSceneController.controller.scrapeBar.progressProperty().bind(scrapingTask.progressProperty());
+            InputSceneController.controller.barPercent.textProperty().bind(scrapingTask.messageProperty());
         }
 
         Thread thread = new Thread(scrapingTask);
@@ -189,7 +229,17 @@ public class ScraperUtils {
         String HTMLContent = getPageHTMLContent(gamePage);
         Document doc = Jsoup.parse(HTMLContent);
 
-        return doc.select("[class=discount_final_price]").first().text().replaceAll("\\s", "");
+        if (doc.select("[class=game_purchase_price price]").text().equalsIgnoreCase("free to play")) {
+            return "Free";
+        }
+
+        String result = doc.select("[class=discount_final_price]").first().text().replaceAll("\\s", "");
+
+        if (result.isEmpty()) {
+            return "No data";
+        }
+
+        return result;
     }
 
     private static String getOriginalPrice(URL gamePage) {
@@ -200,7 +250,13 @@ public class ScraperUtils {
             return doc.select("[class=normal_price]").first().text().replaceAll("\\s", "");
         }
 
-        return doc.select("[class=discount_original_price]").first().text().replaceAll("\\s", "");
+        String result = doc.select("[class=discount_original_price]").first().text().replaceAll("\\s", "");
+
+        if (result.isEmpty()) {
+            return "No data";
+        }
+
+        return result;
     }
 
     private static Elements getGenreTags() {

@@ -13,7 +13,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #333333;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
+<BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #333333;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="InputSceneController">
    <top>
       <StackPane BorderPane.alignment="CENTER_LEFT">
          <children>
@@ -49,7 +49,7 @@
                         <Insets top="-50.0" />
                      </VBox.margin>
                   </TextField>
-                  <Button alignment="CENTER" mnemonicParsing="false" onAction="#scrape" prefHeight="25.0" prefWidth="75.0" style="-fx-background-color: red; -fx-background-radius: 0;" text="SCRAPE" textFill="WHITE">
+                  <Button alignment="CENTER" mnemonicParsing="false" onAction="#scrape" prefHeight="25.0" prefWidth="75.0" style="-fx-background-color: red;" text="SCRAPE" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
