@@ -45,4 +45,4 @@
 - Add new functionalities (reach out to me with cool ideas!)
 - Optimize scraping speed
 - Develop the GUI further
-- Maintain the application according to Steam's future game listing UI updates.
+- Maintain the application according to Steam's future game listing UI updates
