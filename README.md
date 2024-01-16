@@ -2,11 +2,25 @@
 <p align="center">A tool for scraping and viewing Steam game listings currently on sale</p>
 
 ## Content
+- [Preview](#preview)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [System Requirements](#system-requirements)
 - [Installation](#installation)
 - [Roadmap](#roadmap)
+
+## Preview
+<p align="left">
+  <a href="https://mgrab.dev/images/SteamSaleScraper/SaleScraperDemo.mov">
+    <img src="https://mgrab.dev/images/SteamSaleScraper/SaleScraperDemoPlaceholder.png" width=500 />
+  </a>
+
+  <img src="https://mgrab.dev/images/SteamSaleScraper/SaleScraper1.png" width=500 />
+  <img src="https://mgrab.dev/images/SteamSaleScraper/SaleScraper2.png" width=500 />
+  <img src="https://mgrab.dev/images/SteamSaleScraper/SaleScraper3.png" width=500 />
+  <img src="https://mgrab.dev/images/SteamSaleScraper/SaleScraper4.png" width=500 />
+  <img src="https://mgrab.dev/images/SteamSaleScraper/SaleScraper5.png" width=500 />
+</p>
 
 ## Features
 - User-friendly GUI
